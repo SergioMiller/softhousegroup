@@ -1,0 +1,77 @@
+services:
+    nginx:
+        container_name: softhousegroup-nginx
+        build:
+            context: .
+            dockerfile: docker/nginx/Dockerfile
+        restart: unless-stopped
+        ports:
+            - ${DOCKER_APP_PORT:-80}:80
+        working_dir: /var/www
+        volumes:
+            - ./public/:/var/www/public
+        networks:
+            - softhousegroup_network
+        links:
+            - app
+        depends_on:
+            - app
+
+    app:
+        container_name: softhousegroup-app
+        build:
+            context: .
+            dockerfile: docker/php/Dockerfile
+        hostname: softhousegroup-php
+        restart: unless-stopped
+        working_dir: /var/www
+        volumes:
+            - ./app/:/var/www/app
+            - ./bootstrap/:/var/www/bootstrap
+            - ./config/:/var/www/config
+            - ./database/:/var/www/database
+            - ./lang/:/var/www/lang
+            - ./public/:/var/www/public
+            - ./resources/:/var/www/resources
+            - ./routes/:/var/www/routes
+            - ./storage/logs:/var/www/storage/logs
+            - ./tests/:/var/www/tests
+            - ./vendor/:/var/www/vendor
+            - ./composer.json:/var/www/composer.json
+            - ./composer.lock:/var/www/composer.lock
+            - ./artisan:/var/www/artisan
+            - ./.env:/var/www/.env
+            - ./.php-cs-fixer.php:/var/www/.php-cs-fixer.php
+            - ./phpunit.xml:/var/www/phpunit.xml
+        environment:
+            - DB_HOST=${DB_HOST:-postgres}
+        links:
+            - postgres
+        networks:
+            - softhousegroup_network
+
+    postgres:
+        container_name: softhousegroup-postgres
+        image: postgres
+#        volumes:
+#            - postgres_data:/var/lib/postgresql/data:cached
+        environment:
+            POSTGRES_DB: ${DB_DATABASE:-app}
+            POSTGRES_USER: ${DB_USERNAME:-postgres}
+            POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+            PGDATA: /data/postgres
+        ports:
+            - ${DOCKER_POSTGRES_PORT:-5432}:5432
+        restart: unless-stopped
+        networks:
+            - softhousegroup_network
+
+volumes:
+    postgres_data:
+networks:
+    softhousegroup_network:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+                -   subnet: 192.168.9.0/24
