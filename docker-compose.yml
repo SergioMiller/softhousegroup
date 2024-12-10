@@ -45,24 +45,6 @@ services:
             - ./phpunit.xml:/var/www/phpunit.xml
         environment:
             - DB_HOST=${DB_HOST:-postgres}
-        links:
-            - postgres
-        networks:
-            - softhousegroup_network
-
-    postgres:
-        container_name: softhousegroup-postgres
-        image: postgres
-#        volumes:
-#            - postgres_data:/var/lib/postgresql/data:cached
-        environment:
-            POSTGRES_DB: ${DB_DATABASE:-app}
-            POSTGRES_USER: ${DB_USERNAME:-postgres}
-            POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
-            PGDATA: /data/postgres
-        ports:
-            - ${DOCKER_POSTGRES_PORT:-5432}:5432
-        restart: unless-stopped
         networks:
             - softhousegroup_network
 

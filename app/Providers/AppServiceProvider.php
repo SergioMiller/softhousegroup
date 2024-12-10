@@ -1,8 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace app\Providers;
+namespace App\Providers;
 
+use App\Interfaces\LoggerInterface;
+use App\Services\Log\LoggerFactory;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -12,7 +14,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-
+        $this->app->bind(LoggerInterface::class, LoggerFactory::class);
     }
 
     /**
@@ -20,6 +22,5 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-
     }
 }
